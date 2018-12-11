@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">École de Karaté</string>
+    <string name="btnLieu">Lieu</string>
+    <string name="ailleurs">Ailleurs</string>
+    <string name="spectateur">Spectateur</string>
+    <string name="attente">Attente</string>
+    <string name="arbitre">Veut être arbitre</string>
+    <string name="btnCombat1">Combat Rouge</string>
+    <string name="btnCombat2">Combat Blanc</string>
+    <string name="btnCombat3">Combat Nul</string>
+    <string name="btnArbitrer1">Arbitre (Sans Erreur)</string>
+    <string name="btnArbitrer2">Arbitre (Erreur)</string>
+    <string name="btnExamen1">Examen réussi</string>
+    <string name="btnExamen2">Examen échoué</string>
+    <string name="btnAncien">Devenir ancien</string>
+    <string name="btnDeconnexion">Déconnexion</string>
+</resources>
