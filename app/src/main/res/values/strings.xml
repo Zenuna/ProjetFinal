@@ -14,4 +14,5 @@
     <string name="btnExamen2">Examen échoué</string>
     <string name="btnAncien">Devenir ancien</string>
     <string name="btnDeconnexion">Déconnexion</string>
+    <string name="tatami">Tatami</string>
 </resources>
