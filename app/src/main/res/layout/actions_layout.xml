@@ -287,49 +287,49 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami1"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami2"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami3"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami4"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami5"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami6"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tatami7"
                     android:layout_weight="1"
-                    android:src="@mipmap/tatamiVide"
+                    android:src="@mipmap/tatamivide"
                     android:contentDescription="@string/tatami"/>
 
 
