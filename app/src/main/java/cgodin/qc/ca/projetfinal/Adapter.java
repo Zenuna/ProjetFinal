@@ -8,14 +8,12 @@ import android.graphics.Color;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -51,23 +49,27 @@ public class Adapter extends RecyclerView.Adapter<Adapter.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        byte[] decodedString = Base64.decode(avatar.get(position), Base64.DEFAULT);
-        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
+        System.out.println(position);
+       if(position>=0){
+           byte[] decodedString = Base64.decode(avatar.get(position), Base64.DEFAULT);
+           Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
 
-        holder.imgViewCompte.setImageBitmap(bmp);
-        holder.txtViewCompte.setText(username.get(position));
-        holder.itemView.setBackgroundColor(selected_position == position ? Color.GREEN : Color.TRANSPARENT);
-        holder.parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                notifyItemChanged(selected_position);
-                selected_position = position;
-                notifyItemChanged(selected_position);
-                Intent intent = new Intent("custom-message");
-                intent.putExtra("username",username.get(position));
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-            }
-        });
+           holder.imgViewCompte.setImageBitmap(bmp);
+           holder.txtViewCompte.setText(username.get(position));
+           holder.itemView.setBackgroundColor(selected_position == position ? Color.GREEN : Color.TRANSPARENT);
+           holder.parentLayout.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   notifyItemChanged(selected_position);
+                   selected_position = position;
+                   notifyItemChanged(selected_position);
+                   Intent intent = new Intent("custom-message");
+                   intent.putExtra("username",username.get(position));
+                   LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+               }
+           });
+       }
+
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

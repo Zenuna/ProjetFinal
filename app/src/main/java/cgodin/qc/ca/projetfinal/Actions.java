@@ -1,16 +1,11 @@
 package cgodin.qc.ca.projetfinal;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.StrictMode;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -158,62 +153,6 @@ public class Actions extends AppCompatActivity {
         cbArbitre.setOnClickListener(v -> checkBoxClick());
         rg.setOnCheckedChangeListener((group, checkedId) -> radioGroupClick());
 
-        btnCombat1.setOnClickListener(v-> btnCombat1_Click());
-        btnCombat2.setOnClickListener(v-> btnCombat2_Click());
-        btnCombat3.setOnClickListener(v-> btnCombat3_Click());
-
-        btnArbitre1.setOnClickListener(v-> btnArbitre1_Click());
-        btnArbitre2.setOnClickListener(v-> btnArbitre2_Click());
-
-        btnExamen1.setOnClickListener(v-> btnExamen1_Click());
-        btnExamen2.setOnClickListener(v-> btnExamen2_Click());
-
-        btnAncien.setOnClickListener(v-> btnAncien_Click());
-
-
-        btnMessagePrive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("STOMP", "CLICK WORKED");
-                mStompClient.topic("/sujet/prive").subscribe(topicMessage -> {
-                    //Log.d("STOMP", topicMessage.getPayload());
-                    JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-                    //Log.d("de", jsonObj.getString("de").toString());
-                    String strTexte = jsonObj.getString("texte").toString();
-                    String strDe = jsonObj.getString("de").toString();
-                    String strDate = jsonObj.getString("creation").toString();
-                    if(strTexte.equals("Privé")){
-                        afficherMessageCommande("Message privé envoyé.");
-                        afficherMessagePrive("Date : "+strDate + ", ID :  "+strDe+", Message : "+strTexte);
-                    }else
-                        afficherMessageCommande(strTexte);
-
-                });
-                mStompClient.send("/app/messageprive",  "{\"sessionRest\":\"" + MainActivity.SESSIONREST + "\",\"de\":\""+username+"\",\"texte\":\"Privé\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-            }
-        });
-
-        btnMessagePublique.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("STOMP", "CLICK WORKED");
-                mStompClient.topic("/sujet/publique").subscribe(topicMessage -> {
-                    //Log.d("STOMP", topicMessage.getPayload());
-                    JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-                    //Log.d("de", jsonObj.getString("de").toString());
-                    String strTexte = jsonObj.getString("texte").toString();
-                    String strDe = jsonObj.getString("de").toString();
-                    String strDate = jsonObj.getString("creation").toString();
-                    if(strTexte.equals("Publique")){
-                        afficherMessageCommande("Message publique envoyé.");
-                        afficherMessagePublique("Date : "+strDate + ", ID :  "+strDe+", Message : "+strTexte);
-                    }else
-                        afficherMessageCommande(strTexte);
-
-                });
-                mStompClient.send("/app/messagepublique",  "{\"sessionRest\":\"" + MainActivity.SESSIONREST + "\",\"de\":\""+username+"\",\"texte\":\"Publique\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-            }
-        });
 
         btnDeconnexion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,29 +175,6 @@ public class Actions extends AppCompatActivity {
         });
     }
 
-
-
-    public void afficherMessagePrive(final String message){
-        final String s = message;
-
-        txtMsgPrive.post(new Runnable() {
-            @Override
-            public void run() {
-                txtMsgPrive.setText(s);
-            }
-        });
-    }
-
-    public void afficherMessagePublique(final String message){
-        final String s = message;
-
-        txtMsgPublique.post(new Runnable() {
-            @Override
-            public void run() {
-                txtMsgPublique.setText(s);
-            }
-        });
-    }
 
     @Override
     protected void onDestroy() {
@@ -365,7 +281,7 @@ public class Actions extends AppCompatActivity {
         if(!mStompClient.isConnected()){
             mStompClient.reconnect();
         }
-        String valRg =  ((RadioButton) rg.getChildAt(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())))).getText().toString();
+        String valRg =  ((RadioButton) rg.getChildAt(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())))).getText().toString().toUpperCase();
 
         t =  Long.toString(System.currentTimeMillis());
 
@@ -399,20 +315,20 @@ public class Actions extends AppCompatActivity {
                         JSONObject jsonObj = jsonArr.getJSONObject(i);
                         switch(liste) {
                             case "AIL":
-                                usernameAilleur.add(jsonObj.getString("username"));
-                                avatarAilleur.add(jsonObj.getString("avatar"));
+                                usernameAilleur.add(jsonObj.getString("courriel"));
+                                avatarAilleur.add(jsonObj.getString("avatarChaine"));
                                 break;
                             case "ATT":
-                                usernameAttente.add(jsonObj.getString("username"));
-                                avatarAttente.add(jsonObj.getString("avatar"));
+                                usernameAttente.add(jsonObj.getString("courriel"));
+                                avatarAttente.add(jsonObj.getString("avatarChaine"));
                                 break;
                             case "SPE":
-                                usernameSpectateur.add(jsonObj.getString("username"));
-                                avatarSpectateur.add(jsonObj.getString("avatar"));
+                                usernameSpectateur.add(jsonObj.getString("courriel"));
+                                avatarSpectateur.add(jsonObj.getString("avatarChaine"));
                                 break;
                             case "ARB":
-                                usernameArbitre.add(jsonObj.getString("username"));
-                                avatarArbitre.add(jsonObj.getString("avatar"));
+                                usernameArbitre.add(jsonObj.getString("courriel"));
+                                avatarArbitre.add(jsonObj.getString("avatarChaine"));
                         }
                     }
                 } catch (JSONException e) {
