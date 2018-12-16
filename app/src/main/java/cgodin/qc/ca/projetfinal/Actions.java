@@ -165,16 +165,11 @@ public class Actions extends AppCompatActivity {
         });
 
         mStompClient.topic("/sujet/debutCombat").subscribe(topicMessage -> {
-            ListeAilleur();
-            ListeArbitre();
-            ListeAttente();
-            ListeSpectateur();
 
             //Log.d("STOMP", topicMessage.getPayload());
             JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
             //Log.d("de", jsonObj.getString("de").toString());
             String[] strTexte = jsonObj.getString("texte").split("-A-");
-            System.out.println(strTexte);
             for(int i = 0;i < strTexte.length;i++){
                 String urldisplay = strTexte[i];
                 try {
@@ -242,10 +237,7 @@ public class Actions extends AppCompatActivity {
         });
 
         mStompClient.topic("/sujet/envoyerChiffre").subscribe(topicMessage -> {
-            ListeAilleur();
-            ListeArbitre();
-            ListeAttente();
-            ListeSpectateur();
+//
             JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
             //Log.d("de", jsonObj.getString("de").toString());
             String[] strTexte = jsonObj.getString("texte").split("-A-");
@@ -364,8 +356,6 @@ public class Actions extends AppCompatActivity {
                     imgTuile5.setImageResource(R.mipmap.tatamivide);
                     imgTuile6.setImageResource(R.mipmap.tatamivide);
                     imgTuile7.setImageResource(R.mipmap.tatamivide);
-                    ListeAttente();
-                    ListeArbitre();
                     infoCompte(true);
                 }
             });
@@ -428,17 +418,6 @@ public class Actions extends AppCompatActivity {
                 break;
         }
     }
-    public void afficherMessageCommande(final String message){
-        final String s = message;
-
-        txtDerniereCommande.post(new Runnable() {
-            @Override
-            public void run() {
-                txtDerniereCommande.setText(s);
-            }
-        });
-    }
-
 
     @Override
     protected void onDestroy() {
@@ -570,6 +549,14 @@ public class Actions extends AppCompatActivity {
         }
         String valRg =  ((RadioButton) rg.getChildAt(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())))).getText().toString().toUpperCase();
 
+        if(valRg.equals("AILLEURS")){
+            mStompClient.send("/app/listePosition",  "{\"de\":\""+username+"\",\"texte\":\"ARBITRE-NO\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
+            cbArbitre.setEnabled(false);
+            cbArbitre.setChecked(false);
+        }
+        else{
+            cbArbitre.setEnabled(true);
+        }
         t =  Long.toString(System.currentTimeMillis());
 
 
@@ -618,6 +605,25 @@ public class Actions extends AppCompatActivity {
                                 avatarArbitre.add(jsonObj.getString("avatarChaine"));
                         }
                     }
+                    if(jsonArr.length()==0){
+                        switch(liste) {
+                            case "AIL":
+                                usernameAilleur.add("");
+                                avatarAilleur.add("");
+                                break;
+                            case "ATT":
+                                usernameAttente.add("");
+                                avatarAttente.add("");
+                                break;
+                            case "SPE":
+                                usernameSpectateur.add("");
+                                avatarSpectateur.add("");
+                                break;
+                            case "ARB":
+                                usernameArbitre.add("");
+                                avatarArbitre.add("");
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -659,17 +665,24 @@ public class Actions extends AppCompatActivity {
             if(!result.equals("false")){
                 RecyclerView recyclerView = null;
 
-                recyclerView = findViewById(R.id.recyclerAilleurs);
-                setupRecyclerView(recyclerView,usernameAilleur,avatarAilleur);
+                if(usernameAilleur.size() > 0 && avatarAilleur.size() > 0 ){
+                    recyclerView = findViewById(R.id.recyclerAilleurs);
+                    setupRecyclerView(recyclerView,usernameAilleur,avatarAilleur);
+                }
+                if(usernameSpectateur.size() > 0 && avatarSpectateur.size() > 0){
+                    recyclerView = findViewById(R.id.recyclerSpectateur);
+                    setupRecyclerView(recyclerView,usernameSpectateur,avatarSpectateur);
+                }
 
-                recyclerView = findViewById(R.id.recyclerSpectateur);
-                setupRecyclerView(recyclerView,usernameSpectateur,avatarSpectateur);
+                if(usernameAttente.size() > 0 && avatarAttente.size() > 0){
+                    recyclerView = findViewById(R.id.recyclerAttente);
+                    setupRecyclerView(recyclerView,usernameAttente,avatarAttente);
+                }
 
-                recyclerView = findViewById(R.id.recyclerAttente);
-                setupRecyclerView(recyclerView,usernameAttente,avatarAttente);
-
-                recyclerView = findViewById(R.id.recyclerArbitre);
-                setupRecyclerView(recyclerView,usernameArbitre,avatarArbitre);
+                if(usernameArbitre.size() > 0 && avatarArbitre.size() > 0) {
+                    recyclerView = findViewById(R.id.recyclerArbitre);
+                    setupRecyclerView(recyclerView,usernameArbitre,avatarArbitre);
+                }
             }
         }
 
@@ -677,9 +690,11 @@ public class Actions extends AppCompatActivity {
 
     }
     private void setupRecyclerView(RecyclerView recyclerView, List<String> username, List<String> avatar) {
-        Adapter myAdapter = new Adapter(this,username,avatar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(myAdapter);
+        if(username.size() > 0 & avatar.size() > 0){
+            Adapter myAdapter = new Adapter(this,username,avatar);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(myAdapter);
+        }
     }
 
     //Obtention liste des combattants "ailleurs"
@@ -748,7 +763,7 @@ public class Actions extends AppCompatActivity {
         //Voilà pourquoi, j'utilise et retourne responseData.
 
         final String responseData = response.body().string();
-        if (response.isSuccessful()) {
+        if (response.isSuccessful() && !responseData.trim().equals("")) {
             new Actions.RempliListTask().execute(responseData);
         }
         else {

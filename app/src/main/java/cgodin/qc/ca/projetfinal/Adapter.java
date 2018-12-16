@@ -68,6 +68,11 @@ public class Adapter extends RecyclerView.Adapter<Adapter.MyViewHolder> {
                }
            });
        }
+       else{
+           holder.imgViewCompte.setImageBitmap(null);
+           holder.txtViewCompte.setText(null);
+           holder.itemView.setBackgroundColor(selected_position == position ? Color.GREEN : Color.TRANSPARENT);
+       }
 
     }
 
