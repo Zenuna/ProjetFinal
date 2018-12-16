@@ -3,9 +3,7 @@ package cgodin.qc.ca.projetfinal;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.StrictMode;
@@ -59,7 +57,6 @@ public class Actions extends AppCompatActivity {
     TextView txtMsgPublique;
     Button btnDeconnexion;
     TextView txtDerniereCommande;
-    String messageCommande = "";
 
     Login login = new Login();
 
@@ -245,10 +242,13 @@ public class Actions extends AppCompatActivity {
         });
 
         mStompClient.topic("/sujet/envoyerChiffre").subscribe(topicMessage -> {
+            ListeAilleur();
+            ListeArbitre();
+            ListeAttente();
+            ListeSpectateur();
             JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
             //Log.d("de", jsonObj.getString("de").toString());
             String[] strTexte = jsonObj.getString("texte").split("-A-");
-            System.out.println(strTexte);
             for(int i = 0;i < strTexte.length;i++){
                 String urldisplay = strTexte[i];
                 try {
@@ -528,14 +528,6 @@ public class Actions extends AppCompatActivity {
                txtCredits.setText("Crédits : "+obj.getString("credits").toString());
                txtGroupe.setText("Ceinture : "+obj.getString("groupe").toString());
                txtRole.setText("Role : "+obj.getString("role").toString());
-
-                   /* username.add(jsonObj.getString("username").toString());
-                    avatar.add(jsonObj.getString("avatar").toString());
-                    Log.d("STOMP", "Points"+jsonObj.getString("points").toString());
-                    Log.d("STOMP", "Credits"+jsonObj.getString("credits").toString());
-*/
-
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -632,12 +624,8 @@ public class Actions extends AppCompatActivity {
             }
             else{
                 String urldisplay = urls[0];
-                String compte = "";
                 Bitmap bmp;
                 try {
-System.out.println("SKE TU VEUX BIG " + urldisplay);
-//                    JSONArray jsonArr = new JSONArray(urldisplay);
-//                    for(int i = 0;i<jsonArr.length();i++){
                         final JSONObject obj = new JSONObject(urldisplay);
                         byte[] decodedString = Base64.decode(obj.getString("avatar").toString(), Base64.DEFAULT);
                         bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
@@ -768,150 +756,5 @@ System.out.println("SKE TU VEUX BIG " + urldisplay);
         }
         return responseData;
     }
-
-    // Nouvelles methodes
-
-    public void subscribeComabt(String strCombat){
-        mStompClient.topic("/sujet/Combat").subscribe(topicMessage -> {
-            //Log.d("STOMP", topicMessage.getPayload());
-            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-            //Log.d("de", jsonObj.getString("de").toString());
-            String strTexte = jsonObj.getString("texte").toString();
-            if(strTexte.equals("OK")){
-                afficherMessageCommande("Combat généré. ("+strCombat+")");
-            }else
-                afficherMessageCommande(strTexte);
-
-        });
-    }
-
-    public void subsribeArbitre(String strCombat){
-        mStompClient.topic("/sujet/Arbitre").subscribe(topicMessage -> {
-            //Log.d("STOMP", topicMessage.getPayload());
-            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-            //Log.d("de", jsonObj.getString("de").toString());
-            String strTexte = jsonObj.getString("texte").toString();
-            if(strTexte.equals("OK")){
-                afficherMessageCommande("Combat généré. ("+strCombat+")");
-            }else
-                afficherMessageCommande(strTexte);
-
-        });
-    }
-
-    public void subsribeExamen(String strExamen){
-        mStompClient.topic("/sujet/Examen").subscribe(topicMessage -> {
-            //Log.d("STOMP", topicMessage.getPayload());
-            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-            //Log.d("de", jsonObj.getString("de").toString());
-            String strTexte = jsonObj.getString("texte").toString();
-            if(strTexte.equals("OK")){
-                afficherMessageCommande("Examen généré. ("+strExamen+")");
-            }else
-                afficherMessageCommande(strTexte);
-
-        });
-    }
-
-    public void subsribeAncien(){
-        mStompClient.topic("/sujet/Ancien").subscribe(topicMessage -> {
-            //Log.d("STOMP", topicMessage.getPayload());
-            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
-            //Log.d("de", jsonObj.getString("de").toString());
-            String strTexte = jsonObj.getString("texte").toString();
-            if(strTexte.equals("OK")){
-                afficherMessageCommande("L'utilisateur est maintenant devenu un ancien.");
-            }else
-                afficherMessageCommande(strTexte);
-
-        });
-    }
-
-    public void btnCombat1_Click() {
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subscribeComabt("Rouge gagnant");
-        mStompClient.send("/app/Combat",  "{\"de\":\""+username+"\",\"texte\":\"TRUE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-
-    public void btnCombat2_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subscribeComabt("Blanc gagnant");
-        mStompClient.send("/app/Combat",  "{\"de\":\""+username+"\",\"texte\":\"FALSE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-    public void btnCombat3_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subscribeComabt("Match nul");
-        mStompClient.send("/app/Combat",  "{\"de\":\""+username+"\",\"texte\":\"NULLE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-
-    public void btnArbitre1_Click() {
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subsribeArbitre("Arbitre Sans Erreur");
-        mStompClient.send("/app/Arbitre",  "{\"de\":\""+username+"\",\"texte\":\"TRUE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-
-    public void btnArbitre2_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subsribeArbitre("Arbitre Erreur");
-        mStompClient.send("/app/Arbitre",  "{\"de\":\""+username+"\",\"texte\":\"FAUTE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-
-    }
-    public void btnExamen1_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subsribeExamen("Examen réussi");
-        mStompClient.send("/app/Examen",  "{\"de\":\""+username+"\",\"texte\":\"TRUE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-    public void btnExamen2_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subsribeExamen("Examen échoué");
-        mStompClient.send("/app/Examen",  "{\"de\":\""+username+"\",\"texte\":\"FALSE\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-
-    public void btnAncien_Click(){
-        // On assure la connection
-        if(!mStompClient.isConnected()){
-            mStompClient.reconnect();
-        }
-        t =  Long.toString(System.currentTimeMillis());
-        subsribeAncien();
-        mStompClient.send("/app/Ancien",  "{\"de\":\""+username+"\",\"texte\":\"ANCIEN\",\"creation\":" + t + ",\"id_avatar\":\""+username+"\"}").subscribe();
-        infoCompte(true);
-    }
-
-
 
 }

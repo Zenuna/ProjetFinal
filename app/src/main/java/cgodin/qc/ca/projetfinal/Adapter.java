@@ -49,8 +49,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        System.out.println(position);
-       if(position>=0){
+       if(position>=0 && avatar.size() > 0 && username.size() > 0){
            byte[] decodedString = Base64.decode(avatar.get(position), Base64.DEFAULT);
            Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
 
