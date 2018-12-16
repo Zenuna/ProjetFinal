@@ -2,7 +2,10 @@ package cgodin.qc.ca.projetfinal;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.StrictMode;
@@ -34,6 +37,14 @@ import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.client.StompClient;
 
 public class Actions extends AppCompatActivity {
+    // Image tuile
+    ImageView imgTuile1;
+    ImageView imgTuile2;
+    ImageView imgTuile3;
+    ImageView imgTuile4;
+    ImageView imgTuile5;
+    ImageView imgTuile6;
+    ImageView imgTuile7;
 
     TextView txtCourriel;
     String username = "";
@@ -75,7 +86,12 @@ public class Actions extends AppCompatActivity {
 
     private StompClient mStompClient;
     OkHttpClient client = new OkHttpClient();
-
+    String userRouge = "";
+    String userBlanc = "";
+    String userArbitre = "";
+    String AvatarRouge = "";
+    String AvatarBlanc = "";
+    String AvatarArbitre = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,24 +114,13 @@ public class Actions extends AppCompatActivity {
         txtMsgPublique = findViewById(R.id.txtMsgPublique);
         btnDeconnexion = findViewById(R.id.btnDeconnexion);
         txtDerniereCommande = findViewById(R.id.txtDerniereCommande);
-
-        //BtnCombat
-        Button btnCombat1 = findViewById(R.id.btnCombat1);
-        Button btnCombat2 = findViewById(R.id.btnCombat2);
-        Button btnCombat3 = findViewById(R.id.btnCombat3);
-
-        //BtnArbitre
-        Button btnArbitre1 = findViewById(R.id.btnArbitrer1);
-        Button btnArbitre2 = findViewById(R.id.btnArbitrer2);
-
-
-        //BtnExamen
-        Button btnExamen1 = findViewById(R.id.btnExamen1);
-        Button btnExamen2 = findViewById(R.id.btnExamen2);
-
-        //BtnAncien
-        Button btnAncien = findViewById(R.id.btnAncien);
-
+        imgTuile1 = findViewById(R.id.tatami1);
+        imgTuile2 = findViewById(R.id.tatami2);
+        imgTuile3 = findViewById(R.id.tatami3);
+        imgTuile4 = findViewById(R.id.tatami4);
+        imgTuile5 = findViewById(R.id.tatami5);
+        imgTuile6 = findViewById(R.id.tatami6);
+        imgTuile7 = findViewById(R.id.tatami7);
 
         username = getIntent().getExtras().getString("username").toString();
         infoCompte(false);
@@ -162,8 +167,267 @@ public class Actions extends AppCompatActivity {
             }
         });
 
+        mStompClient.topic("/sujet/debutCombat").subscribe(topicMessage -> {
+            ListeAilleur();
+            ListeArbitre();
+            ListeAttente();
+            ListeSpectateur();
+
+            //Log.d("STOMP", topicMessage.getPayload());
+            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
+            //Log.d("de", jsonObj.getString("de").toString());
+            String[] strTexte = jsonObj.getString("texte").split("-A-");
+            System.out.println(strTexte);
+            for(int i = 0;i < strTexte.length;i++){
+                String urldisplay = strTexte[i];
+                try {
+                        JSONObject objDansCombat = new JSONObject(urldisplay);
+                        switch(i) {
+                            case 0:
+                                userRouge = objDansCombat.getString("courriel");
+                                AvatarRouge = getAvatar(objDansCombat.getString("avatar"));
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        byte[] decodedString = Base64.decode(AvatarRouge, Base64.DEFAULT);
+                                        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                        imgTuile7.setImageBitmap(bmp);
+                                        if(username.equals(userRouge))  {;
+                                            imgTuile7.setPadding(1,2,1,2);
+                                            imgTuile7.setBackgroundColor(Color.RED);
+                                        }
+                                    }
+                                });
+                                break;
+                            case 1:
+                                userBlanc = objDansCombat.getString("courriel");
+                                AvatarBlanc = getAvatar(objDansCombat.getString("avatar"));
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        byte[] decodedString = Base64.decode(AvatarBlanc, Base64.DEFAULT);
+                                        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                        imgTuile1.setImageBitmap(bmp);
+                                        if(username.equals(userBlanc)) {
+                                            imgTuile1.setPadding(1,2,1,2);
+                                            imgTuile1.setBackgroundColor(Color.RED);
+                                        }
+                                    }
+                                });
+                                break;
+                            case 2:
+                                userArbitre = objDansCombat.getString("courriel");
+                                AvatarArbitre = getAvatar(objDansCombat.getString("avatar"));
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        byte[] decodedString = Base64.decode(AvatarArbitre, Base64.DEFAULT);
+                                        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                        imgTuile4.setImageBitmap(bmp);
+                                        if(username.equals(userArbitre)) {
+                                            imgTuile4.setPadding(1,2,1,2);
+                                            imgTuile4.setBackgroundColor(Color.RED);
+                                        }
+                                    }
+                                });
+                                break;
+                        }
+//                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        mStompClient.topic("/sujet/envoyerChiffre").subscribe(topicMessage -> {
+            JSONObject jsonObj = new JSONObject(topicMessage.getPayload());
+            //Log.d("de", jsonObj.getString("de").toString());
+            String[] strTexte = jsonObj.getString("texte").split("-A-");
+            System.out.println(strTexte);
+            for(int i = 0;i < strTexte.length;i++){
+                String urldisplay = strTexte[i];
+                try {
+                    JSONObject objDansCombat = new JSONObject(urldisplay);
+                    switch(i) {
+                        case 0:
+                            userRouge = objDansCombat.getString("courriel");
+                            AvatarRouge = getAvatar(objDansCombat.getString("avatar"));
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    byte[] decodedString = Base64.decode(AvatarRouge, Base64.DEFAULT);
+                                    Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                    imgTuile7.setImageBitmap(bmp);
+                                    if(username.equals(userRouge)) {
+                                        imgTuile7.setPadding(1,2,1,2);
+                                        imgTuile7.setBackgroundColor(Color.RED);
+                                    }
+                                }
+                            });
+                            break;
+                        case 1:
+                            userBlanc = objDansCombat.getString("courriel");
+                            AvatarBlanc = getAvatar(objDansCombat.getString("avatar"));
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    byte[] decodedString = Base64.decode(AvatarBlanc, Base64.DEFAULT);
+                                    Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                    imgTuile1.setImageBitmap(bmp);
+                                    if(username.equals(userBlanc)) {
+                                        imgTuile1.setPadding(1,2,1,2);
+                                        imgTuile1.setBackgroundColor(Color.RED);
+                                    }
+                                }
+                            });
+                            break;
+                        case 2:
+                            userArbitre = objDansCombat.getString("courriel");
+                            AvatarArbitre = getAvatar(objDansCombat.getString("avatar"));
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    byte[] decodedString = Base64.decode(AvatarArbitre, Base64.DEFAULT);
+                                    Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                    imgTuile4.setImageBitmap(bmp);System.out.println(username);
+                                    if(username.equals(userArbitre)) {
+                                        imgTuile4.setPadding(1,2,1,2);
+                                        imgTuile4.setBackgroundColor(Color.RED);
+                                    }
+                                }
+                            });
+                            break;
+                    }
+//                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            String[] combat = jsonObj.getString("avatar").split("-A-");
+            for(int i =0;i<combat.length;i++){
+                placerImage(i,combat[i]);
+            }
+            Thread.sleep(2000);
+           switch(quiGagne(combat[0],combat[1])){
+               case "NULLE":
+                   runOnUiThread(new Runnable() {
+
+                       @Override
+                       public void run() {
+                           imgTuile3.setImageResource(R.mipmap.drapeau);
+                           imgTuile3.setBackgroundColor(Color.WHITE);
+                           imgTuile5.setImageResource(R.mipmap.drapeau);
+                           imgTuile5.setBackgroundColor(Color.WHITE);
+                       }});
+                   break;
+               case "ROUGE":
+                   runOnUiThread(new Runnable() {
+
+                       @Override
+                       public void run() {
+                           imgTuile5.setImageResource(R.mipmap.drapeau);
+                           imgTuile5.setBackgroundColor(Color.WHITE);
+                       }});
+                   break;
+               case "BLANC":
+                   runOnUiThread(new Runnable() {
+
+                       @Override
+                       public void run() {
+                           imgTuile3.setImageResource(R.mipmap.drapeau);
+                           imgTuile3.setBackgroundColor(Color.WHITE);
+                       }});
+                   break;
+           }
+        });
+        mStompClient.topic("/sujet/finCombat").subscribe(topicMessage -> {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    imgTuile1.setBackgroundColor(Color.WHITE);
+                    imgTuile4.setBackgroundColor(Color.WHITE);
+                    imgTuile7.setBackgroundColor(Color.WHITE);
+                    imgTuile1.setImageResource(R.mipmap.tatamivide);
+                    imgTuile2.setImageResource(R.mipmap.tatamivide);
+                    imgTuile3.setImageResource(R.mipmap.tatamivide);
+                    imgTuile4.setImageResource(R.mipmap.tatamivide);
+                    imgTuile5.setImageResource(R.mipmap.tatamivide);
+                    imgTuile6.setImageResource(R.mipmap.tatamivide);
+                    imgTuile7.setImageResource(R.mipmap.tatamivide);
+                    ListeAttente();
+                    ListeArbitre();
+                    infoCompte(true);
+                }
+            });
+        });
     }
 
+    public String quiGagne(String chiffreBlanc, String chiffreRouge){
+        if(chiffreBlanc.equals(chiffreRouge)){
+            return "NULLE";
+        }
+        else{
+            switch(chiffreBlanc){
+                case "1":
+                    if(chiffreRouge.equals("2")) return "ROUGE";
+                    else return "BLANC";
+                case "2":
+                    if(chiffreRouge.equals("3")) return "ROUGE";
+                    else return "BLANC";
+                case "3":
+                    if(chiffreRouge.equals("1")) return  "ROUGE";
+                    else return "BLANC";
+            }
+            return "BUG";
+        }
+    }
+    public int trouverMain(String mainJouee){
+        switch(mainJouee){
+            case "1":
+                return R.mipmap.roche;
+            case "2":
+                return R.mipmap.papier;
+            case "3":
+                return R.mipmap.ciseau;
+            default:
+                return 0;
+        }
+    }
+
+    public void placerImage(int indice, String mainJouee){
+        switch(indice){
+            case 0:
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        imgTuile2.setImageResource(trouverMain(mainJouee));
+                        imgTuile2.setBackgroundColor(Color.WHITE);
+                    }
+                });
+                break;
+            case 1:
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        imgTuile6.setImageResource(trouverMain(mainJouee));
+                        imgTuile6.setBackgroundColor(Color.WHITE);
+                    }
+                });
+                break;
+        }
+    }
     public void afficherMessageCommande(final String message){
         final String s = message;
 
@@ -216,6 +480,37 @@ public class Actions extends AppCompatActivity {
         return responseData;
     }
 
+    public String getAvatar(String strNomAvatar)   {
+//https://square.github.io/okhttp/
+        String json = "";
+        System.out.println("AVATAR : " + strNomAvatar);
+        String url = "http://"+urlLocalServer+":8093/TrouverAvatarSupreme/"+strNomAvatar;
+            try{
+
+                return(postAvatar(url,json).replace("data:image/jpeg;base64,",""));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        return "";
+    }
+    String postAvatar(String url, String json) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        final String responseData = response.body().string();
+        if (response.isSuccessful()) {
+            System.out.println("Retour " + responseData);
+            return responseData;
+        }
+        else{
+
+            return responseData;
+        }
+    }
     private class DownloadCompteTask extends AsyncTask<String, Void, String> {
 
         protected String doInBackground(String... urls) {
@@ -340,27 +635,32 @@ public class Actions extends AppCompatActivity {
                 String compte = "";
                 Bitmap bmp;
                 try {
-                    final JSONObject obj = new JSONObject(urldisplay);
-                    byte[] decodedString = Base64.decode(obj.getString("avatar").toString(), Base64.DEFAULT);
-                    bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
-                    imgCompte.setImageBitmap(bmp);
-                    runOnUiThread(new Runnable() {
+System.out.println("SKE TU VEUX BIG " + urldisplay);
+//                    JSONArray jsonArr = new JSONArray(urldisplay);
+//                    for(int i = 0;i<jsonArr.length();i++){
+                        final JSONObject obj = new JSONObject(urldisplay);
+                        byte[] decodedString = Base64.decode(obj.getString("avatar").toString(), Base64.DEFAULT);
+                        bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
+                        imgCompte.setImageBitmap(bmp);
+                        runOnUiThread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            try {
-                                txtCourriel.setText(obj.getString("username").toString());
-                                txtPoints.setText("Points : " + obj.getString("points").toString());
-                                txtCredits.setText("Crédits : " + obj.getString("credits").toString());
-                                txtGroupe.setText("Ceinture : " + obj.getString("groupe").toString());
-                                txtRole.setText("Role : " + obj.getString("role").toString());
+                            @Override
+                            public void run() {
+                                try {
+                                    txtCourriel.setText(obj.getString("username").toString());
+                                    txtPoints.setText("Points : " + obj.getString("points").toString());
+                                    txtCredits.setText("Crédits : " + obj.getString("credits").toString());
+                                    txtGroupe.setText("Ceinture : " + obj.getString("groupe").toString());
+                                    txtRole.setText("Role : " + obj.getString("role").toString());
+                                }
+                                catch(Exception e){
+                                    e.printStackTrace();
+                                }
                             }
-                            catch(Exception e){
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    liste="false";
+                        });
+                        liste="false";
+//                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
