@@ -15,4 +15,5 @@
     <string name="btnAncien">Devenir ancien</string>
     <string name="btnDeconnexion">Déconnexion</string>
     <string name="tatami">Tatami</string>
+    <string name="btnHistorique">Historique</string>
 </resources>

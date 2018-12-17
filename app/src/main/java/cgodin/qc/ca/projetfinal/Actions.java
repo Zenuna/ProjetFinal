@@ -1,5 +1,6 @@
 package cgodin.qc.ca.projetfinal;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,14 +20,18 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,6 +50,7 @@ public class Actions extends AppCompatActivity {
     ImageView imgTuile7;
 
     TextView txtCourriel;
+    TextView txtFullname;
     String username = "";
     TextView txtPoints;
     TextView txtCredits;
@@ -57,6 +63,7 @@ public class Actions extends AppCompatActivity {
     TextView txtMsgPublique;
     Button btnDeconnexion;
     TextView txtDerniereCommande;
+    Button btnHistorique;
 
     Login login = new Login();
 
@@ -98,6 +105,7 @@ public class Actions extends AppCompatActivity {
         setContentView(R.layout.actions_layout);
 
         txtCourriel = findViewById(R.id.txtCouriel);
+        txtFullname = findViewById(R.id.txtFullname);
         txtPoints = findViewById(R.id.txtPoints);
         txtCredits = findViewById(R.id.txtCredits);
         txtGroupe = findViewById(R.id.txtGroupe);
@@ -118,6 +126,9 @@ public class Actions extends AppCompatActivity {
         imgTuile5 = findViewById(R.id.tatami5);
         imgTuile6 = findViewById(R.id.tatami6);
         imgTuile7 = findViewById(R.id.tatami7);
+        btnHistorique = findViewById(R.id.btnHistorique);
+
+        btnHistorique.setOnClickListener(v -> afficherHistorique());
 
         username = getIntent().getExtras().getString("username").toString();
         infoCompte(false);
@@ -362,6 +373,16 @@ public class Actions extends AppCompatActivity {
         });
     }
 
+    private void afficherHistorique() {
+
+        Toast.makeText(Actions.this,"Le username: "+username ,Toast.LENGTH_SHORT).show();
+        login.etablirConnexion(username,getApplicationContext());
+
+        Intent action = new Intent(Actions.this, Historique.class);
+        action.putExtra("username",username);
+        startActivity(action);
+    }
+
     public String quiGagne(String chiffreBlanc, String chiffreRouge){
         if(chiffreBlanc.equals(chiffreRouge)){
             return "NULLE";
@@ -503,10 +524,20 @@ public class Actions extends AppCompatActivity {
                 bmp = BitmapFactory.decodeByteArray(decodedString, 0,decodedString.length);
                 imgCompte.setImageBitmap(bmp);
                txtCourriel.setText(obj.getString("username").toString());
+               txtFullname.setText(obj.getString("fullname"));
                txtPoints.setText("Points : "+obj.getString("points").toString() );
                txtCredits.setText("Crédits : "+obj.getString("credits").toString());
                txtGroupe.setText("Ceinture : "+obj.getString("groupe").toString());
-               txtRole.setText("Role : "+obj.getString("role").toString());
+                String strAncienDepuis = obj.getString("anciendepuis").trim();
+                Date date = new Date(Long.valueOf(strAncienDepuis));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA_FRENCH);
+                String laDate = dateFormat.format(date);
+                Log.d("ANCIEN", String.valueOf(strAncienDepuis.equals("0")));
+                if(!strAncienDepuis.equals("0"))
+                    txtRole.setText("Role : "+obj.getString("role") + "  Ancien depuis : "+ laDate);
+                else
+                    txtRole.setText("Role : "+obj.getString("role"));
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -642,10 +673,19 @@ public class Actions extends AppCompatActivity {
                             public void run() {
                                 try {
                                     txtCourriel.setText(obj.getString("username").toString());
+                                    txtFullname.setText(obj.getString("fullname"));
                                     txtPoints.setText("Points : " + obj.getString("points").toString());
                                     txtCredits.setText("Crédits : " + obj.getString("credits").toString());
                                     txtGroupe.setText("Ceinture : " + obj.getString("groupe").toString());
                                     txtRole.setText("Role : " + obj.getString("role").toString());
+                                    String strAncienDepuis = obj.getString("anciendepuis").trim();
+                                    Date date = new Date(Long.valueOf(strAncienDepuis));
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA_FRENCH);
+                                    String laDate = dateFormat.format(date);
+                                    if(!strAncienDepuis.equals("0"))
+                                        txtRole.setText("Role : "+obj.getString("role") + "  Ancien depuis : "+ laDate);
+                                    else
+                                        txtRole.setText("Role : "+obj.getString("role"));
                                 }
                                 catch(Exception e){
                                     e.printStackTrace();
